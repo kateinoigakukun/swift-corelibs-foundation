@@ -566,7 +566,7 @@ CF_PRIVATE CFArrayRef _CFPreferencesCreateDomainList(CFStringRef  userName, CFSt
         return NULL;
     }
     if (hostName == kCFPreferencesAnyHost) {
-        suffix = CFSTR(".plist");
+        suffix = CFStringCreateWithCString(prefAlloc, ".plist", kCFStringEncodingASCII);
     } else if (hostName == kCFPreferencesCurrentHost) {
         CFStringRef hostID = _CFPreferencesGetByHostIdentifierString();
         suffix = CFStringCreateWithFormat(prefAlloc, NULL, CFSTR(".%@.plist"), hostID);

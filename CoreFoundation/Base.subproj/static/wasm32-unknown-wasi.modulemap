@@ -3,6 +3,7 @@
 module CoreFoundation [extern_c] [system] {
     umbrella header "CoreFoundation.h"
     explicit module CFPlugInCOM { header "CFPlugInCOM.h" }
+    config_macros _WASI_EMULATED_MMAN, _WASI_EMULATED_SIGNAL, _WASI_EMULATED_PROCESS_CLOCKS
 
     link "icui18n"
 }

@@ -26,6 +26,7 @@ fileprivate let _write = Glibc.write(_:_:_:)
 fileprivate let _close = Glibc.close(_:)
 #elseif canImport(WASILibc)
 import WASILibc
+@_implementationOnly import wasi_emulated_mman
 fileprivate let _read = WASILibc.read(_:_:_:)
 fileprivate let _write = WASILibc.write(_:_:_:)
 fileprivate let _close = WASILibc.close(_:)

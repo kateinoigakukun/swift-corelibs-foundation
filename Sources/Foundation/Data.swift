@@ -29,6 +29,7 @@
 @usableFromInline let memcpy = Glibc.memcpy
 @usableFromInline let memcmp = Glibc.memcmp
 #elseif canImport(WASILibc)
+@_implementationOnly import wasi_emulated_mman
 @usableFromInline let calloc = WASILibc.calloc
 @usableFromInline let malloc = WASILibc.malloc
 @usableFromInline let free = WASILibc.free

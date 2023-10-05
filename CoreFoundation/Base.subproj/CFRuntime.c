@@ -1198,9 +1198,11 @@ void __CFInitialize(void) {
         DuplicateHandle(GetCurrentProcess(), GetCurrentThread(),
                         GetCurrentProcess(), &_CFMainPThread, 0, FALSE,
                         DUPLICATE_SAME_ACCESS);
-#else
+#elif _POSIX_THREADS
         // move this next line up into the #if above after Foundation gets off this symbol. Also: <rdar://problem/39622745> Stop using _CFMainPThread
         _CFMainPThread = pthread_self();
+#elif TARGET_OS_WASI
+        _CFMainPThread = NULL;
 #endif
 
 #if TARGET_OS_WIN32

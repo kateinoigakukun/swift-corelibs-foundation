@@ -42,7 +42,7 @@
 #if __has_include(<unistd.h>)
 #include <unistd.h>
 #endif
-#if _POSIX_THREADS
+#if _POSIX_THREADS && __has_include(<pthread.h>)
 #include <pthread.h>
 #endif
 #if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
@@ -414,6 +414,10 @@ typedef unsigned long _CFThreadSpecificKey;
 typedef pthread_t _CFThreadRef;
 typedef pthread_attr_t _CFThreadAttributes;
 typedef pthread_key_t _CFThreadSpecificKey;
+#elif TARGET_OS_WASI
+typedef void *_CFThreadRef;
+typedef void *_CFThreadAttributes;
+typedef void *_CFThreadSpecificKey;
 #endif
 
 CF_CROSS_PLATFORM_EXPORT Boolean _CFIsMainThread(void);
@@ -425,6 +429,7 @@ CF_EXPORT CFHashCode __CFHashDouble(double d);
 CF_CROSS_PLATFORM_EXPORT void CFSortIndexes(CFIndex *indexBuffer, CFIndex count, CFOptionFlags opts, CFComparisonResult (^cmp)(CFIndex, CFIndex));
 #endif
 
+#if !TARGET_OS_WASI
 CF_EXPORT CFTypeRef _Nullable _CFThreadSpecificGet(_CFThreadSpecificKey key);
 CF_EXPORT void _CFThreadSpecificSet(_CFThreadSpecificKey key, CFTypeRef _Nullable value);
 CF_EXPORT _CFThreadSpecificKey _CFThreadSpecificKeyCreate(void);
@@ -433,6 +438,7 @@ CF_EXPORT _CFThreadRef _CFThreadCreate(const _CFThreadAttributes attrs, void *_N
 
 CF_CROSS_PLATFORM_EXPORT int _CFThreadSetName(_CFThreadRef thread, const char *_Nonnull name);
 CF_CROSS_PLATFORM_EXPORT int _CFThreadGetName(char *_Nonnull buf, int length);
+#endif
 
 CF_EXPORT Boolean _CFCharacterSetIsLongCharacterMember(CFCharacterSetRef theSet, UTF32Char theChar);
 CF_EXPORT CFCharacterSetRef _CFCharacterSetCreateCopy(CFAllocatorRef alloc, CFCharacterSetRef theSet);

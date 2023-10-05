@@ -48,6 +48,8 @@ open class NSLock: NSObject, NSLocking {
         InitializeSRWLock(mutex)
         InitializeConditionVariable(timeoutCond)
         InitializeSRWLock(timeoutMutex)
+#elseif os(WASI)
+        // noop on no thread platforms
 #else
         pthread_mutex_init(mutex, nil)
 #if os(macOS) || os(iOS)
@@ -60,6 +62,8 @@ open class NSLock: NSObject, NSLocking {
     deinit {
 #if os(Windows)
         // SRWLocks do not need to be explicitly destroyed
+#elseif os(WASI)
+        // noop on no thread platforms
 #else
         pthread_mutex_destroy(mutex)
 #endif
@@ -73,6 +77,8 @@ open class NSLock: NSObject, NSLocking {
     open func lock() {
 #if os(Windows)
         AcquireSRWLockExclusive(mutex)
+#elseif os(WASI)
+        // noop on no thread platforms
 #else
         pthread_mutex_lock(mutex)
 #endif
@@ -84,6 +90,8 @@ open class NSLock: NSObject, NSLocking {
         AcquireSRWLockExclusive(timeoutMutex)
         WakeAllConditionVariable(timeoutCond)
         ReleaseSRWLockExclusive(timeoutMutex)
+#elseif os(WASI)
+        // noop on no thread platforms
 #else
         pthread_mutex_unlock(mutex)
 #if os(macOS) || os(iOS)
@@ -98,6 +106,9 @@ open class NSLock: NSObject, NSLocking {
     open func `try`() -> Bool {
 #if os(Windows)
         return TryAcquireSRWLockExclusive(mutex) != 0
+#elseif os(WASI)
+        // noop on no thread platforms
+        return true
 #else
         return pthread_mutex_trylock(mutex) == 0
 #endif
@@ -108,6 +119,9 @@ open class NSLock: NSObject, NSLocking {
         if TryAcquireSRWLockExclusive(mutex) != 0 {
           return true
         }
+#elseif os(WASI)
+        // noop on no thread platforms
+        return true
 #else
         if pthread_mutex_trylock(mutex) == 0 {
             return true
@@ -247,6 +261,8 @@ open class NSRecursiveLock: NSObject, NSLocking {
         InitializeCriticalSection(mutex)
         InitializeConditionVariable(timeoutCond)
         InitializeSRWLock(timeoutMutex)
+#elseif os(WASI)
+        // noop on no thread platforms
 #else
 #if CYGWIN || os(OpenBSD)
         var attrib : pthread_mutexattr_t? = nil
@@ -273,6 +289,8 @@ open class NSRecursiveLock: NSObject, NSLocking {
     deinit {
 #if os(Windows)
         DeleteCriticalSection(mutex)
+#elseif os(WASI)
+        // noop on no thread platforms
 #else
         pthread_mutex_destroy(mutex)
 #endif
@@ -286,6 +304,8 @@ open class NSRecursiveLock: NSObject, NSLocking {
     open func lock() {
 #if os(Windows)
         EnterCriticalSection(mutex)
+#elseif os(WASI)
+        // noop on no thread platforms
 #else
         pthread_mutex_lock(mutex)
 #endif
@@ -297,6 +317,8 @@ open class NSRecursiveLock: NSObject, NSLocking {
         AcquireSRWLockExclusive(timeoutMutex)
         WakeAllConditionVariable(timeoutCond)
         ReleaseSRWLockExclusive(timeoutMutex)
+#elseif os(WASI)
+        // noop on no thread platforms
 #else
         pthread_mutex_unlock(mutex)
 #if os(macOS) || os(iOS)
@@ -311,6 +333,9 @@ open class NSRecursiveLock: NSObject, NSLocking {
     open func `try`() -> Bool {
 #if os(Windows)
         return TryEnterCriticalSection(mutex)
+#elseif os(WASI)
+        // noop on no thread platforms
+        return true
 #else
         return pthread_mutex_trylock(mutex) == 0
 #endif
@@ -321,6 +346,9 @@ open class NSRecursiveLock: NSObject, NSLocking {
         if TryEnterCriticalSection(mutex) {
             return true
         }
+#elseif os(WASI)
+        // noop on no thread platforms
+        return true
 #else
         if pthread_mutex_trylock(mutex) == 0 {
             return true
@@ -352,6 +380,8 @@ open class NSCondition: NSObject, NSLocking {
 #if os(Windows)
         InitializeSRWLock(mutex)
         InitializeConditionVariable(cond)
+#elseif os(WASI)
+        // noop on no thread platforms
 #else
         pthread_mutex_init(mutex, nil)
         pthread_cond_init(cond, nil)
@@ -361,6 +391,8 @@ open class NSCondition: NSObject, NSLocking {
     deinit {
 #if os(Windows)
         // SRWLock do not need to be explicitly destroyed
+#elseif os(WASI)
+        // noop on no thread platforms
 #else
         pthread_mutex_destroy(mutex)
         pthread_cond_destroy(cond)
@@ -374,6 +406,8 @@ open class NSCondition: NSObject, NSLocking {
     open func lock() {
 #if os(Windows)
         AcquireSRWLockExclusive(mutex)
+#elseif os(WASI)
+        // noop on no thread platforms
 #else
         pthread_mutex_lock(mutex)
 #endif
@@ -382,6 +416,8 @@ open class NSCondition: NSObject, NSLocking {
     open func unlock() {
 #if os(Windows)
         ReleaseSRWLockExclusive(mutex)
+#elseif os(WASI)
+        // noop on no thread platforms
 #else
         pthread_mutex_unlock(mutex)
 #endif
@@ -390,6 +426,8 @@ open class NSCondition: NSObject, NSLocking {
     open func wait() {
 #if os(Windows)
         SleepConditionVariableSRW(cond, mutex, WinSDK.INFINITE, 0)
+#elseif os(WASI)
+        // noop on no thread platforms
 #else
         pthread_cond_wait(cond, mutex)
 #endif
@@ -398,6 +436,9 @@ open class NSCondition: NSObject, NSLocking {
     open func wait(until limit: Date) -> Bool {
 #if os(Windows)
         return SleepConditionVariableSRW(cond, mutex, timeoutFrom(date: limit), 0)
+#elseif os(WASI)
+        // noop on no thread platforms
+        return true
 #else
         guard var timeout = timeSpecFrom(date: limit) else {
             return false
@@ -409,6 +450,8 @@ open class NSCondition: NSObject, NSLocking {
     open func signal() {
 #if os(Windows)
         WakeConditionVariable(cond)
+#elseif os(WASI)
+        // noop on no thread platforms
 #else
         pthread_cond_signal(cond)
 #endif
@@ -417,6 +460,8 @@ open class NSCondition: NSObject, NSLocking {
     open func broadcast() {
 #if os(Windows)
         WakeAllConditionVariable(cond)
+#elseif os(WASI)
+        // noop on no thread platforms
 #else
         pthread_cond_broadcast(cond)
 #endif

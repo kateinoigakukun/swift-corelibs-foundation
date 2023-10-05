@@ -138,6 +138,12 @@ typedef char * Class;
 
 #endif
 
+#if __has_include(<unistd.h>)
+# include <unistd.h>
+# if TARGET_OS_WASI && _POSIX_THREADS && !__has_include(<pthread.h>)
+#  undef _POSIX_THREADS
+# endif
+#endif
     
 /* This macro creates some helper functions which are useful in dealing with libdispatch:
  *  __ PREFIX Queue -- manages and returns a singleton serial queue

@@ -504,7 +504,7 @@ public struct URL : ReferenceConvertible, Equatable {
         guard !string.isEmpty, let inner = NSURL(string: string, relativeTo: url) else { return nil }
         _url = URL._converted(from: inner)
     }
-    
+
     /// Initializes a newly created file URL referencing the local file or directory at path, relative to a base URL.
     ///
     /// If an empty string is used for the path, then the path is assumed to be ".".
@@ -548,10 +548,12 @@ public struct URL : ReferenceConvertible, Equatable {
         }
     }
 
+#if !os(WASI)
     /// Initializes a newly created URL referencing the local file or directory at the file system representation of the path. File system representation is a null-terminated C string with canonical UTF-8 encoding.
     public init(fileURLWithFileSystemRepresentation path: UnsafePointer<Int8>, isDirectory: Bool, relativeTo baseURL: URL?) {
         _url = URL._converted(from: NSURL(fileURLWithFileSystemRepresentation: path, isDirectory: isDirectory, relativeTo: baseURL))
     }
+#endif
     
     public func hash(into hasher: inout Hasher) {
         hasher.combine(_url)
@@ -880,6 +882,7 @@ public struct URL : ReferenceConvertible, Equatable {
         self = self.standardized
     }
     
+#if !os(WASI)
     /// Standardizes the path of a file URL.
     ///
     /// If the `isFileURL` is false, this method returns `self`.
@@ -956,6 +959,7 @@ public struct URL : ReferenceConvertible, Equatable {
     public func checkResourceIsReachable() throws -> Bool {
         return try _url.checkResourceIsReachable()
     }
+#endif
     
     // MARK: - Bridging Support
     
@@ -1046,7 +1050,7 @@ extension URL : Codable {
     }
 }
 
-
+#if !os(WASI)
 //===----------------------------------------------------------------------===//
 // File references, for playgrounds.
 //===----------------------------------------------------------------------===//
@@ -1058,3 +1062,4 @@ extension URL : _ExpressibleByFileReferenceLiteral {
 }
 
 public typealias _FileReferenceLiteralType = URL
+#endif

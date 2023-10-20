@@ -96,7 +96,9 @@ open class UserDefaults: NSObject {
         suite = suitename
         super.init()
         
+#if !os(WASI)
         setVolatileDomain(UserDefaults._parsedArgumentsDomain, forName: UserDefaults.argumentDomain)
+#endif
     }
     
     open func object(forKey defaultName: String) -> Any? {
@@ -279,8 +281,12 @@ open class UserDefaults: NSObject {
         if let bVal = aVal as? URL {
             return bVal
         } else if let bVal = aVal as? String {
+#if !os(WASI)
             let cVal = NSString(string: bVal).expandingTildeInPath
             return URL(fileURLWithPath: cVal)
+#else
+            return nil
+#endif
         } else if let bVal = aVal as? Data {
             return NSKeyedUnarchiver.unarchiveObject(with: bVal) as? URL
         }
@@ -351,7 +357,9 @@ open class UserDefaults: NSObject {
         }
     }
     
+#if !os(WASI)
     private static let _parsedArgumentsDomain: [String: Any] = UserDefaults._parseArguments(ProcessInfo.processInfo.arguments)
+#endif
     
     private var _volatileDomains: [String: [String: Any]] = [:]
     private let _volatileDomainsLock = NSLock()
@@ -406,7 +414,9 @@ open class UserDefaults: NSObject {
             
             _ = defaults.synchronize()
             
+#if !os(WASI)
             NotificationCenter.default.post(name: UserDefaults.didChangeNotification, object: self)
+#endif
         }
     }
     
@@ -418,7 +428,9 @@ open class UserDefaults: NSObject {
             
             _ = defaults.synchronize()
             
+#if !os(WASI)
             NotificationCenter.default.post(name: UserDefaults.didChangeNotification, object: self)
+#endif
         }
     }
     
@@ -441,7 +453,9 @@ open class UserDefaults: NSObject {
 }
 
 extension UserDefaults {
+#if !os(WASI)
     public static let didChangeNotification = NSNotification.Name(rawValue: "NSUserDefaultsDidChangeNotification")
+#endif
     public static let globalDomain: String = "NSGlobalDomain"
     public static let argumentDomain: String = "NSArgumentDomain"
     public static let registrationDomain: String = "NSRegistrationDomain"

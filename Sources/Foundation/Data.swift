@@ -29,6 +29,7 @@
 @usableFromInline let memcpy = Glibc.memcpy
 @usableFromInline let memcmp = Glibc.memcmp
 #elseif canImport(WASILibc)
+@_implementationOnly import wasi_emulated_mman
 @usableFromInline let calloc = WASILibc.calloc
 @usableFromInline let malloc = WASILibc.malloc
 @usableFromInline let free = WASILibc.free
@@ -603,16 +604,16 @@ internal class __NSSwiftData : NSData {
         _backing = backing
         _range = range
     }
-    
+
     public required init?(coder aDecoder: NSCoder) {
         fatalError("This should have been encoded as NSData.")
     }
-    
+
     override func encode(with aCoder: NSCoder) {
         // This should encode this object just like NSData does, and .classForCoder should do the rest.
         super.encode(with: aCoder)
     }
-    
+
     override var length: Int {
         return _range.upperBound - _range.lowerBound
     }
@@ -677,7 +678,7 @@ public struct Data : ReferenceConvertible, Equatable, Hashable, RandomAccessColl
     @usableFromInline
     @frozen
     internal struct InlineData {
-#if arch(x86_64) || arch(arm64) || arch(s390x) || arch(powerpc64) || arch(powerpc64le)
+#if arch(x86_64) || arch(arm64) || arch(s390x) || arch(powerpc64) || arch(powerpc64le) 
         @usableFromInline typealias Buffer = (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
                                               UInt8, UInt8, UInt8, UInt8, UInt8, UInt8) //len  //enum
         @usableFromInline var bytes: Buffer
@@ -2039,7 +2040,6 @@ public struct Data : ReferenceConvertible, Equatable, Hashable, RandomAccessColl
         }
     }
     
-#if !os(WASI)
     /// Initialize a `Data` with the contents of a `URL`.
     ///
     /// - parameter url: The `URL` to read.
@@ -2052,7 +2052,6 @@ public struct Data : ReferenceConvertible, Equatable, Hashable, RandomAccessColl
             return Data(bytes: d.bytes, count: d.length)
         }
     }
-#endif
     
     /// Initialize a `Data` from a Base-64 encoded String using the given options.
     ///

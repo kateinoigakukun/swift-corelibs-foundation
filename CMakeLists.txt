@@ -57,7 +57,11 @@ set(CF_DEPLOYMENT_SWIFT YES CACHE BOOL "Build for Swift" FORCE)
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG OFF)
-find_package(Threads REQUIRED)
+
+if(NOT CMAKE_SYSTEM_NAME STREQUAL WASI)
+  # TODO(katei): Make CMake build system resilient without Threads
+  find_package(Threads REQUIRED)
+endif()
 
 set(SAVED_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 set(BUILD_SHARED_LIBS NO)

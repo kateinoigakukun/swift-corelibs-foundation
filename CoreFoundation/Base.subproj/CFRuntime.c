@@ -1182,7 +1182,7 @@ void __CFInitialize(void) {
         __CFInitializing = 1;
 
 #if !TARGET_OS_WASI
-#if __HAS_DISPATCH__
+#if __HAS_DISPATCH__ && !TARGET_OS_MAC
     // libdispatch has to be initialized before CoreFoundation, so to avoid
     // issues with static initializer ordering, we are doing it explicitly.
     libdispatch_init();

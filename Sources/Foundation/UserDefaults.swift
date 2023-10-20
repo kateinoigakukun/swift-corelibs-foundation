@@ -149,7 +149,25 @@ open class UserDefaults: NSObject {
     }
     
     open func string(forKey defaultName: String) -> String? {
-        return object(forKey: defaultName) as? String
+        guard let aVal = object(forKey: defaultName) else {
+            return nil
+        }
+        if let bVal = aVal as? String {
+            return bVal
+        }
+        if let bVal = aVal as? Bool {
+            return NSNumber(value: bVal).stringValue
+        }
+        if let bVal = aVal as? Int {
+            return NSNumber(value: bVal).stringValue
+        }
+        if let bVal = aVal as? Float {
+            return NSNumber(value: bVal).stringValue
+        }
+        if let bVal = aVal as? Double {
+            return NSNumber(value: bVal).stringValue
+        }
+        return nil
     }
     
     open func array(forKey defaultName: String) -> [Any]? {
@@ -175,6 +193,15 @@ open class UserDefaults: NSObject {
         if let bVal = aVal as? Int {
             return bVal
         }
+        if let bVal = aVal as? Bool {
+            return NSNumber(value: bVal).intValue
+        }
+        if let bVal = aVal as? Float {
+            return NSNumber(value: bVal).intValue
+        }
+        if let bVal = aVal as? Double {
+            return NSNumber(value: bVal).intValue
+        }
         if let bVal = aVal as? String {
             return NSString(string: bVal).integerValue
         }
@@ -188,6 +215,15 @@ open class UserDefaults: NSObject {
         if let bVal = aVal as? Float {
             return bVal
         }
+        if let bVal = aVal as? Bool {
+            return NSNumber(value: bVal).floatValue
+        }
+        if let bVal = aVal as? Int {
+            return NSNumber(value: bVal).floatValue
+        }
+        if let bVal = aVal as? Double {
+            return NSNumber(value: bVal).floatValue
+        }
         if let bVal = aVal as? String {
             return NSString(string: bVal).floatValue
         }
@@ -200,6 +236,15 @@ open class UserDefaults: NSObject {
         }
         if let bVal = aVal as? Double {
             return bVal
+        }
+        if let bVal = aVal as? Bool {
+            return NSNumber(value: bVal).doubleValue
+        }
+        if let bVal = aVal as? Int {
+            return NSNumber(value: bVal).doubleValue
+        }
+        if let bVal = aVal as? Float {
+            return NSNumber(value: bVal).doubleValue
         }
         if let bVal = aVal as? String {
             return NSString(string: bVal).doubleValue

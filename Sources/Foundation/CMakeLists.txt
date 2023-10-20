@@ -151,11 +151,13 @@ add_library(Foundation
   URLQueryItem.swift
   URLResourceKey.swift
   UUID.swift
+  WinSDK+Extensions.swift
   ${FOUNDATION_WASI_UNAVAILABLE_SOURCES})
 target_compile_definitions(Foundation PRIVATE
   DEPLOYMENT_RUNTIME_SWIFT)
 target_compile_options(Foundation PUBLIC
   $<$<BOOL:${ENABLE_TESTING}>:-enable-testing>
+  "SHELL:-Xfrontend -disable-autolink-framework -Xfrontend CoreFoundation"
   "SHELL:-Xcc -F${CMAKE_BINARY_DIR}")
 target_link_libraries(Foundation
   PRIVATE

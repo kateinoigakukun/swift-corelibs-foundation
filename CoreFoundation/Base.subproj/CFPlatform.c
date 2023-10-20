@@ -62,11 +62,9 @@ int _CFArgc(void) { return *_NSGetArgc(); }
 #endif
 
 
-#if !TARGET_OS_WASI
 CF_PRIVATE Boolean _CFGetCurrentDirectory(char *path, int maxlen) {
     return getcwd(path, maxlen) != NULL;
 }
-#endif
 
 #if TARGET_OS_WIN32
 // Returns the path to the CF DLL, which we can then use to find resources like char sets
@@ -1475,7 +1473,7 @@ void OSMemoryBarrier() {
 #pragma mark -
 #pragma mark Dispatch Replacements
 
-#if !__HAS_DISPATCH__
+#if !__HAS_DISPATCH__ && __BLOCKS__
 
 #include <semaphore.h>
 
@@ -1625,8 +1623,10 @@ CF_PRIVATE int asprintf(char **ret, const char *format, ...) {
 #if DEPLOYMENT_RUNTIME_SWIFT
 #include <fcntl.h>
 
-extern void swift_retain(void *);
+extern void *swift_retain(void *);
 extern void swift_release(void *);
+
+#if !TARGET_OS_WASI
 
 #if TARGET_OS_WIN32
 typedef struct _CFThreadSpecificData {
@@ -1806,12 +1806,16 @@ CF_CROSS_PLATFORM_EXPORT int _CFThreadGetName(char *buf, int length) {
 #endif
     return -1;
 }
+#endif // !TARGET_OS_WASI
 
 CF_EXPORT char **_CFEnviron(void) {
 #if TARGET_OS_MAC
     return *_NSGetEnviron();
 #elif TARGET_OS_WIN32
     return _environ;
+#elif TARGET_OS_WASI
+    extern char **environ;
+    return environ;
 #else
 #if TARGET_OS_BSD || TARGET_OS_WASI
     extern char **environ;

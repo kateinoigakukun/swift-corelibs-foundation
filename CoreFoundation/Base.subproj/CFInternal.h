@@ -103,7 +103,10 @@ CF_EXTERN_C_BEGIN
 #include "CFRuntime_Internal.h"
 #include <limits.h>
 #include <stdatomic.h>
+
+#if __BLOCKS__
 #include <Block.h>
+#endif
 
 #if TARGET_OS_MAC || TARGET_OS_LINUX || TARGET_OS_BSD || TARGET_OS_WASI
 
@@ -322,7 +325,7 @@ static inline void __CFRuntimeSetValue(CFTypeRef cf, uint8_t n1, uint8_t n2, uin
     __CFInfoType info = atomic_load(&(((CFRuntimeBase *)cf)->_cfinfoa));
     __CFInfoType newInfo;
     __CFInfoType mask = __CFInfoMask(n1, n2);
-	
+
     #if !TARGET_OS_WASI
     do {
     #endif
@@ -654,6 +657,35 @@ CF_INLINE int _CFRecursiveMutexUnlock(_CFRecursiveMutex *mutex) {
   LeaveCriticalSection(mutex);
   return 0;
 }
+#elif TARGET_OS_WASI
+typedef struct {} _CFMutex;
+#define _CF_MUTEX_STATIC_INITIALIZER {}
+CF_INLINE int _CFMutexCreate(_CFMutex *lock) {
+  return 0;
+}
+CF_INLINE int _CFMutexDestroy(_CFMutex *lock) {
+  return 0;
+}
+CF_INLINE int _CFMutexLock(_CFMutex *lock) {
+  return 0;
+}
+CF_INLINE int _CFMutexUnlock(_CFMutex *lock) {
+  return 0;
+}
+
+typedef struct {} _CFRecursiveMutex;
+CF_INLINE int _CFRecursiveMutexCreate(_CFRecursiveMutex *mutex) {
+  return 0;
+}
+CF_INLINE int _CFRecursiveMutexDestroy(_CFRecursiveMutex *mutex) {
+  return 0;
+}
+CF_INLINE int _CFRecursiveMutexLock(_CFRecursiveMutex *mutex) {
+  return 0;
+}
+CF_INLINE int _CFRecursiveMutexUnlock(_CFRecursiveMutex *mutex) {
+  return 0;
+}
 #else
 #error "do not know how to define mutex and recursive mutex for this OS"
 #endif
@@ -677,7 +709,7 @@ typedef uint32_t os_unfair_lock_options_t;
 static void os_unfair_lock_lock(os_unfair_lock_t lock) { pthread_mutex_lock(lock); }
 static void os_unfair_lock_lock_with_options(os_unfair_lock_t lock, os_unfair_lock_options_t options) { pthread_mutex_lock(lock); }
 static void os_unfair_lock_unlock(os_unfair_lock_t lock) { pthread_mutex_unlock(lock); }
-#elif defined(_WIN32)
+#elif defined(_WIN32) || TARGET_OS_WASI
 #define OS_UNFAIR_LOCK_INIT CFLockInit
 #define os_unfair_lock CFLock_t
 #define os_unfair_lock_lock __CFLock
@@ -1172,12 +1204,13 @@ CF_INLINE dispatch_queue_t __CFDispatchQueueGetGenericBackground(void) {
     return dispatch_get_global_queue(QOS_CLASS_UTILITY, DISPATCH_QUEUE_OVERCOMMIT);
 }
 
+CF_PRIVATE dispatch_data_t _CFDataCreateDispatchData(CFDataRef data); //avoids copying in most cases
+
 #endif
 
 CF_PRIVATE CFStringRef _CFStringCopyBundleUnloadingProtectedString(CFStringRef str);
 
 CF_PRIVATE uint8_t *_CFDataGetBytePtrNonObjC(CFDataRef data);
-CF_PRIVATE dispatch_data_t _CFDataCreateDispatchData(CFDataRef data); //avoids copying in most cases
 
 // Use this for functions that are intended to be breakpoint hooks. If you do not, the compiler may optimize them away.
 // Based on: BREAKPOINT_FUNCTION in objc-os.h

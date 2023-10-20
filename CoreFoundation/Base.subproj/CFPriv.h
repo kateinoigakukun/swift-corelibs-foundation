@@ -598,7 +598,7 @@ CF_EXPORT CFMessagePortRef _CFMessagePortCreateLocalEx(CFAllocatorRef allocator,
 #if __has_include(<unistd.h>)
 #include <unistd.h>
 #endif
-#if _POSIX_THREADS
+#if _POSIX_THREADS && __has_include(<pthread.h>)
 #include <pthread.h>
 #endif
 #include <time.h>

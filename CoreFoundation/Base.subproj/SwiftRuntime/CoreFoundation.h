@@ -22,6 +22,16 @@
 
 #if !defined(CF_EXCLUDE_CSTD_HEADERS)
 
+#ifndef _WASI_EMULATED_MMAN
+#  define _WASI_EMULATED_MMAN
+#endif
+#ifndef _WASI_EMULATED_SIGNAL
+#  define _WASI_EMULATED_SIGNAL
+#endif
+#ifndef _WASI_EMULATED_PROCESS_CLOCKS
+#  define _WASI_EMULATED_PROCESS_CLOCKS
+#endif
+
 #include <sys/types.h>
 #include <stdarg.h>
 #include <assert.h>

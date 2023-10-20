@@ -2325,7 +2325,7 @@ static CFStringEncoding encodingForXMLData(CFDataRef data, CFErrorRef *error, CF
         if (len == 5 && (*base == 'u' || *base == 'U') && (base[1] == 't' || base[1] == 'T') && (base[2] == 'f' || base[2] == 'F') && (base[3] == '-') && (base[4] == '8'))
             return kCFStringEncodingUTF8;
         encodingName = CFStringCreateWithBytes(kCFAllocatorSystemDefault, base, len, kCFStringEncodingISOLatin1, false);
-#if TARGET_OS_MAC || TARGET_OS_WIN32 || TARGET_OS_LINUX
+#if TARGET_OS_MAC || TARGET_OS_WIN32 || TARGET_OS_LINUX || TARGET_OS_WASI
         CFStringEncoding enc = CFStringConvertIANACharSetNameToEncoding(encodingName);
         if (enc != kCFStringEncodingInvalidId) {
             if (encodingName) {CFRelease(encodingName); }
@@ -2898,7 +2898,6 @@ CFPropertyListRef CFPropertyListCreateFromXMLData(CFAllocatorRef allocator, CFDa
     return result;
 }
 
-#if !TARGET_OS_WASI
 CFDataRef CFPropertyListCreateData(CFAllocatorRef allocator, CFPropertyListRef propertyList, CFPropertyListFormat format, CFOptionFlags options, CFErrorRef *error) {
     CFAssert1(format != kCFPropertyListOpenStepFormat, __kCFLogAssertion, "%s(): kCFPropertyListOpenStepFormat not supported for writing", __PRETTY_FUNCTION__);
     CFAssert2(format == kCFPropertyListXMLFormat_v1_0 || format == kCFPropertyListBinaryFormat_v1_0, __kCFLogAssertion, "%s(): Unrecognized option %ld", __PRETTY_FUNCTION__, format);
@@ -2922,7 +2921,9 @@ CFDataRef CFPropertyListCreateData(CFAllocatorRef allocator, CFPropertyListRef p
         }
         
         data = _CFPropertyListCreateXMLData(allocator, propertyList, false);
-    } else if (format == kCFPropertyListBinaryFormat_v1_0) {        // TODO: Is it more efficient to create a stream here or just use a mutable data?
+    } else if (format == kCFPropertyListBinaryFormat_v1_0) {        
+#if !TARGET_OS_WASI
+        // TODO: Is it more efficient to create a stream here or just use a mutable data?
         CFWriteStreamRef stream = CFWriteStreamCreateWithAllocatedBuffers(kCFAllocatorSystemDefault, allocator);
         CFWriteStreamOpen(stream);
         CFIndex len = CFPropertyListWrite(propertyList, stream, format, options, error);
@@ -2930,7 +2931,8 @@ CFDataRef CFPropertyListCreateData(CFAllocatorRef allocator, CFPropertyListRef p
             data = (CFDataRef)CFWriteStreamCopyProperty(stream, kCFStreamPropertyDataWritten);
         }
         CFWriteStreamClose(stream);
-	CFRelease(stream);
+        CFRelease(stream);
+#endif
     } else {
 	CFLog(kCFLogLevelError, CFSTR("Unknown format option"));
     }
@@ -2938,6 +2940,7 @@ CFDataRef CFPropertyListCreateData(CFAllocatorRef allocator, CFPropertyListRef p
     return data;
 }
 
+#if !TARGET_OS_WASI
 CFIndex CFPropertyListWrite(CFPropertyListRef propertyList, CFWriteStreamRef stream, CFPropertyListFormat format, CFOptionFlags options, CFErrorRef *error) {
     CFAssert1(stream != NULL, __kCFLogAssertion, "%s(): NULL stream not allowed", __PRETTY_FUNCTION__);
     CFAssert1(format != kCFPropertyListOpenStepFormat, __kCFLogAssertion, "%s(): kCFPropertyListOpenStepFormat not supported for writing", __PRETTY_FUNCTION__);

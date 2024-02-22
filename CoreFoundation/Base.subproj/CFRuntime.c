@@ -837,7 +837,7 @@ CF_PRIVATE void __CFTypeCollectionRelease(CFAllocatorRef allocator, const void *
 static CFLock_t __CFRuntimeExternRefCountTableLock = CFLockInit;
 #endif
 
-#if DEPLOYMENT_RUNTIME_SWIFT
+#if DEPLOYMENT_RUNTIME_SWIFT && !TARGET_OS_DARWIN
 // using CFGetRetainCount is very dangerous; there is no real reason to use it in the swift version of CF.
 #else
 static uint64_t __CFGetFullRetainCount(CFTypeRef cf) {

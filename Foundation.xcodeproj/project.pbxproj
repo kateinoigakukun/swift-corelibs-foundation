@@ -155,7 +155,6 @@
 		5B13B3511C582D4C00651CE2 /* TestByteCountFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5A34B551C18C85D00FD972B /* TestByteCountFormatter.swift */; };
 		5B13B3521C582D4C00651CE2 /* TestNSValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3047AEB1C38BC3300295652 /* TestNSValue.swift */; };
 		5B1FD9C51D6D16150080E83C /* CFURLSessionInterface.c in Sources */ = {isa = PBXBuildFile; fileRef = 5B1FD9C11D6D160F0080E83C /* CFURLSessionInterface.c */; };
-		5B1FD9E11D6D178E0080E83C /* libcurl.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B1FD9E01D6D178E0080E83C /* libcurl.4.dylib */; };
 		5B1FD9E31D6D17B80080E83C /* TestURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1FD9E21D6D17B80080E83C /* TestURLSession.swift */; };
 		5B23AB891CE62D4D000DB898 /* ReferenceConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B23AB881CE62D4D000DB898 /* ReferenceConvertible.swift */; };
 		5B23AB8B1CE62F9B000DB898 /* PersonNameComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B23AB8A1CE62F9B000DB898 /* PersonNameComponents.swift */; };
@@ -1368,7 +1367,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5B1FD9E11D6D178E0080E83C /* libcurl.4.dylib in Frameworks */,
 				5B40F9F41C12524C000E72E3 /* libxml2.dylib in Frameworks */,
 				5B7C8B031BEA86A900C5B690 /* libCoreFoundation.a in Frameworks */,
 				5B5D89781BBDADDB00234F36 /* libz.dylib in Frameworks */,
@@ -4001,8 +3999,10 @@
 					__UNICODE,
 					r,
 					r,
+					"-nodefaultlibs",
+					"-lSystem",
 				);
-				OTHER_SWIFT_FLAGS = "-DDEPLOYMENT_ENABLE_LIBDISPATCH -DDEPLOYMENT_RUNTIME_SWIFT";
+				OTHER_SWIFT_FLAGS = "-DDEPLOYMENT_ENABLE_LIBDISPATCH -DDEPLOYMENT_RUNTIME_SWIFT -Xfrontend -disable-autolink-framework -Xfrontend CoreFoundation -Xfrontend -disable-autolink-library -Xfrontend swiftCoreFoundation";
 				PRODUCT_BUNDLE_IDENTIFIER = org.swift.Foundation;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -4079,8 +4079,10 @@
 					__UNICODE,
 					r,
 					r,
+					"-nodefaultlibs",
+					"-lSystem",
 				);
-				OTHER_SWIFT_FLAGS = "-DDEPLOYMENT_ENABLE_LIBDISPATCH -DDEPLOYMENT_RUNTIME_SWIFT";
+				OTHER_SWIFT_FLAGS = "-DDEPLOYMENT_ENABLE_LIBDISPATCH -DDEPLOYMENT_RUNTIME_SWIFT -Xfrontend -disable-autolink-framework -Xfrontend CoreFoundation -Xfrontend -disable-autolink-library -Xfrontend swiftCoreFoundation";
 				PRODUCT_BUNDLE_IDENTIFIER = org.swift.Foundation;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
